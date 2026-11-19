@@ -446,6 +446,78 @@ def dicionario() -> pd.DataFrame:
     return pd.DataFrame(linhas, columns=["arquivo", "campo", "tipo", "unidade", "descricao"])
 
 
+def atualizar_tabela_fontes_readme(acoes, indices, bcb, tesouro, futuros, controles, cal, eventos_corp) -> None:
+    """Escreve no README a tabela de fontes (modelo da seção 3.1 do documento de legado).
+
+    Período = primeira e última data presentes na base tratada; data de coleta = dados/metadados/fontes.csv.
+    O texto fica entre os marcadores <!-- fontes:inicio --> e <!-- fontes:fim -->.
+    """
+    fontes = pd.read_csv(C.METADADOS / "fontes.csv")
+    fontes["coleta"] = pd.to_datetime(fontes["coletado_em"].str[:10])
+
+    def coleta(*prefixos: str) -> str:
+        f = fontes[fontes["fonte_id"].str.startswith(prefixos)]
+        return f["coleta"].max().strftime("%d/%m/%Y") if not f.empty else "—"
+
+    def per(datas) -> str:
+        datas = pd.to_datetime(pd.Series(datas)).dropna()
+        return f"{datas.min():%d/%m/%y} a {datas.max():%d/%m/%y}" if not datas.empty else "—"
+
+    focus_anos = ", ".join(sorted(bcb["focus"]["data"].dt.year.astype(str).unique()))
+    cal_ev = cal[cal["categoria"] != "balanco"]
+    anos_cal = ", ".join(sorted(pd.to_datetime(cal_ev["data"]).dt.year.astype(str).unique()))
+    bal = cal[cal["categoria"] == "balanco"]
+    linhas = [
+        (f"Ações ({len(C.ACOES)}): abertura, máxima, mínima, fechamento, volume. {', '.join(C.ACOES)}", "B3 (COTAHIST)",
+         per(acoes["data"]), coleta("B3_COTAHIST"), "`acoes_diarias.csv`"),
+        ("Proventos e desdobramentos (ajuste dos preços)",
+         "Yahoo Finance, conferido com B3 e MetaTrader 5; correções em `dados/manuais/`",
+         per(eventos_corp["data_ex"]), coleta("YAHOO_"), "`eventos_corporativos.csv`"),
+        (f"Índices: {', '.join(C.INDICES_B3)}", "B3", per(indices["data"]), coleta("B3_INDICE_"), "`indices_diarios.csv`"),
+        ("CDI diário (SGS 12)", "Banco Central do Brasil", per(bcb["cdi_diario"]["data"]), coleta("BCB_SGS_12"), "`cdi_diario.csv`"),
+        ("Selic meta (SGS 432)", "Banco Central do Brasil", per(bcb["selic_meta"]["data"]), coleta("BCB_SGS_432"), "`selic_meta.csv`"),
+        ("Dólar PTAX (compra e venda)", "Banco Central do Brasil", per(bcb["ptax"]["data"]), coleta("BCB_PTAX"), "`ptax.csv`"),
+        (f"Focus: {', '.join(C.FOCUS_INDICADORES)} (ano seguinte a cada eleição)", "Banco Central do Brasil",
+         f"anos de {focus_anos}", coleta("BCB_FOCUS"), "`focus.csv`"),
+        ("Juro prefixado (1, 2, 3 anos), juro real IPCA+ (3, 5 anos), inflação implícita (3 anos)",
+         "Tesouro Nacional (Tesouro Direto)", per(tesouro["data"]), coleta("TESOURO_TD"), "`juros_tesouro.csv`"),
+    ]
+    if futuros is not None:
+        di = futuros[futuros["ativo"].str.startswith("DI1")]
+        dol = futuros[futuros["ativo"].str.startswith("DOL")]
+        venc = ", ".join(a[4:] for a in sorted(di["ativo"].unique()))
+        linhas += [
+            (f"DI futuro, vencimentos de janeiro ({venc})", "B3, obtido pelo MetaTrader 5 da corretora",
+             per(di["data"]), coleta("MT5_DI1"), "`futuros_diarios.csv`"),
+            ("Dólar futuro (série contínua)", "B3, obtido pelo MetaTrader 5 da corretora",
+             per(dol["data"]), coleta("MT5_DOL"), "`futuros_diarios.csv`"),
+        ]
+    linhas += [
+        ("S&P 500, VIX, Brent (controles externos)", "Yahoo Finance (fonte secundária)", per(controles["data"]),
+         coleta("YAHOO_SP500", "YAHOO_VIX", "YAHOO_BRENT"), "`controles_externos.csv`"),
+        ("Datas dos balanços do 3º trimestre", "CVM (dados abertos) e imprensa",
+         "3º trimestre de " + ", ".join(str(a) for a in C.ANOS_ELEICAO),
+         coleta("CVM_ITR"), "`calendario_eventos.csv`"),
+        ("Datas de Copom, FOMC, IPCA, IPCA-15 e turnos eleitorais", "Banco Central, Federal Reserve, IBGE, TSE",
+         f"anos de {anos_cal}", coleta("BCB_SGS_432"), "`calendario_eventos.csv`"),
+    ]
+    tab = ["| Série | Fonte primária | Período | Data de coleta | Arquivo na base |", "|---|---|---|---|---|"]
+    tab += [f"| {a} | {b} | {c} | {d} | {e} |" for a, b, c, d, e in linhas]
+    bloco = "\n".join(["<!-- fontes:inicio -->", "## Fontes dos dados", "",
+                       "Tabela gerada automaticamente por `src/02_tratar_validar.py`. O período é o que está na base tratada.",
+                       "O detalhe por arquivo (URL, unidade, tratamento) está em `dados/metadados/fontes.csv`.", "",
+                       *tab, "<!-- fontes:fim -->"])
+    readme = C.RAIZ / "README.md"
+    txt = readme.read_text(encoding="utf-8")
+    if "<!-- fontes:inicio -->" in txt:
+        ini = txt.index("<!-- fontes:inicio -->")
+        fim = txt.index("<!-- fontes:fim -->") + len("<!-- fontes:fim -->")
+        txt = txt[:ini] + bloco + txt[fim:]
+    else:
+        txt = txt.replace("## Fontes e termos de uso", bloco + "\n\n## Fontes e termos de uso", 1)
+    readme.write_text(txt, encoding="utf-8")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--corte", default=str(min(dt.date.today(), C.DATA_CORTE_FINAL)))
@@ -545,6 +617,7 @@ def main() -> None:
           "- [ ] Conferir no RI os horários dos balanços marcados \"a conferir\" (relatório de produção da Petrobras, resultado do BB)",
           "- [ ] Definir a situação da base e o responsável por cada pendência"]
     (C.METADADOS / "relatorio_validacao.md").write_text("\n".join(L), encoding="utf-8")
+    atualizar_tabela_fontes_readme(acoes, indices, bcb, tesouro, futuros, controles, cal, eventos_corp)
     print("\n".join(f"{b:11s} {a}" for a, b, _ in validacoes))
     print(f"Última data comum: {ultima_comum:%Y-%m-%d}. Relatório: dados/metadados/relatorio_validacao.md")
 

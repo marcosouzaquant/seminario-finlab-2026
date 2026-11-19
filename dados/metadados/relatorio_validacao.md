@@ -1,6 +1,6 @@
 # Relatório de validação da base — corte 2026-11-19
 
-Gerado automaticamente em 2026-11-19T17:04:34-03:00 por `src/02_tratar_validar.py`.
+Gerado automaticamente em 2026-11-19T17:31:14-03:00 por `src/02_tratar_validar.py`.
 Última data comum às séries centrais: **2026-11-18**.
 
 > A situação final (aprovada / aprovada com restrição / pendente) é decidida pelo grupo, depois de
