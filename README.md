@@ -26,6 +26,38 @@ O arquivo `dados/metadados/manifesto_arquivos.csv` registra o hash SHA-256 de ca
 
 **Certificados SSL:** nesta máquina o Python não reconhecia a cadeia de certificados. O código usa o repositório do Windows (`truststore`) e mantém a verificação ligada. Em outras máquinas isso não atrapalha.
 
+## Por que estas 10 ações
+
+Todas têm boa liquidez e histórico desde 2013, o que permite comparar as eleições de 2014, 2018, 2022 e 2026. Elas formam dois grupos:
+
+**1) Núcleo (PETR4, BBAS3, ITUB4, VALE3).** São das ações mais negociadas e pesam muito no Ibovespa. Formam dois pares de comparação:
+- **PETR4 e BBAS3** são estatais e ficam mais expostas a mudanças de governo e de política econômica.
+- **ITUB4 e VALE3** são privadas e servem de contraponto do mesmo setor: o Itaú para o Banco do Brasil e a Vale para a Petrobras (commodities e dólar).
+
+**2) Sensíveis a juros (CYRE3, MRVE3, MGLU3, LREN3, TAEE11, EGIE3).** A eleição altera a expectativa de juros, e estes setores reagem a ela:
+- **Construção (CYRE3, MRVE3):** dependem de financiamento. A MRV depende também de programas habitacionais.
+- **Varejo (MGLU3, LREN3):** dependem de crédito e de consumo.
+- **Energia (TAEE11, EGIE3):** têm receita regulada e estável e se comportam de modo parecido com a renda fixa.
+
+**Os dados confirmam a separação.** A tabela abaixo mostra o efeito de uma alta de 1 ponto percentual no DI futuro (DI1F29), já descontado o movimento do Ibovespa, no período de 2022 a 2025:
+
+| Grupo | Ação | Efeito de +1 p.p. nos juros |
+|---|---|---|
+| Varejo | MGLU3 | −5,8% |
+| Construção | MRVE3 | −5,1% |
+| Construção | CYRE3 | −5,1% |
+| Varejo | LREN3 | −3,2% |
+| Energia | TAEE11 | −1,2% |
+| Energia | EGIE3 | −1,2% |
+| Núcleo | BBAS3 | −0,4% |
+| Núcleo | ITUB4 | 0,0% |
+| Núcleo | PETR4 | +1,5% |
+| Núcleo | VALE3 | +3,1% |
+
+Os dois grupos reagem aos juros de formas diferentes, e isso ajuda a separar o efeito da eleição que passa pelos juros do efeito geral sobre a bolsa. Em energia o efeito é menor: o setor entra mais como regulado e defensivo do que como o grupo mais sensível a juros.
+
+Os resultados completos, inclusive a medida com o Tesouro prefixado e a janela antes de cada eleição, estão em `dados/metadados/sensibilidade_juros.csv` e `sensibilidade_juros_por_eleicao.csv` e são gerados por `src/04_sensibilidade_juros.py`.
+
 ## Estrutura
 
 | Pasta | Conteúdo |
