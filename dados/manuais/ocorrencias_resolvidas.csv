@@ -1,0 +1,12 @@
+ticker,data,motivo
+PETR4,2022-08-12,"Dividendo de R$ 6,73/ação, data com 11/08/2022, ex 12/08/2022 (Petrobras, 28/07/2022; InfoMoney, CNN Brasil)"
+PETR4,2020-03-09,Movimento de mercado; sem evento corporativo
+BBAS3,2026-10-26,Movimento de mercado; API de proventos da B3 sem evento próximo
+CYRE3,2026-10-26,Movimento de mercado; retorno idêntico no MT5 (-44.8%); IMOB no mesmo pregão
+MRVE3,2026-10-26,Movimento de mercado; retorno idêntico no MT5 (-42.5%)
+MGLU3,2026-10-26,Movimento de mercado; retorno idêntico no MT5 (-58.2%)
+LREN3,2026-10-26,Movimento de mercado; retorno idêntico no MT5 (-33.6%)
+MGLU3,2013-08-07,Movimento de mercado; mesmo retorno no Yahoo (fonte independente); sem evento na B3
+MGLU3,2015-07-31,Movimento de mercado; mesmo retorno no Yahoo; sem evento na B3
+MGLU3,2015-12-28,Movimento de mercado; mesmo retorno no Yahoo; sem evento na B3
+MGLU3,2016-10-27,Movimento de mercado; mesmo retorno no Yahoo; sem evento na B3

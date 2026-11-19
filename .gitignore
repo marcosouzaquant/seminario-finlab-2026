@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+# Arquivos COTAHIST são grandes (~500 MB); arquivar na pasta do FinLab, não no git
+dados/brutos/b3_cotahist/
+# Arquivos da CVM (~100 MB); são baixados de novo por src/01_coletar.py
+dados/brutos/cvm_itr/
+# Documentos internos do grupo (ficam só na máquina local)
+PLANO_*.md
+orientacoes/

@@ -1,0 +1,28 @@
+arquivo,campo,tipo,unidade,descricao
+acoes_diarias.csv,data,data,,Data do pregão (AAAA-MM-DD)
+acoes_diarias.csv,ticker,texto,,Código de negociação B3
+acoes_diarias.csv,abertura/maxima/minima/fechamento,decimal,R$ por ação,"Preços brutos B3 (sem ajuste), divididos por FATCOT"
+acoes_diarias.csv,*_ajustado,decimal,R$ por ação,Preço bruto × fator_ajuste; usar para retornos
+acoes_diarias.csv,fator_ajuste,decimal,adimensional,Adj Close (Yahoo) ÷ fechamento B3; muda só em datas ex
+acoes_diarias.csv,retorno_valido,booleano,,False = retorno do pregão contaminado por evento corporativo sem ajuste possível (ver eventos_corporativos_manuais.csv); excluir das análises
+acoes_diarias.csv,negocios,inteiro,nº de negócios,TOTNEG do COTAHIST
+acoes_diarias.csv,quantidade,inteiro,nº de ações,QUATOT do COTAHIST
+acoes_diarias.csv,volume_financeiro,decimal,R$,VOLTOT do COTAHIST
+indices_diarios.csv,fechamento_pontos,decimal,pontos,"Fechamento diário do índice (B3); IBOV, IMOB, SMLL, IFNC são de retorno total"
+eventos_corporativos.csv,valor_ou_fator,decimal,R$/ação ou razão,Proventos e desdobramentos segundo o Yahoo
+cdi_diario.csv,valor,decimal,% ao dia,SGS 12; dividir por 100 para decimal
+selic_meta.csv,valor,decimal,% ao ano,SGS 432
+ptax.csv,ptax_compra/ptax_venda,decimal,R$/US$,PTAX de fechamento (último boletim do dia)
+focus.csv,media/mediana/desvio_padrao/minimo/maximo,decimal,unidade do indicador,"Estatísticas diárias do Focus; horizonte = ano seguinte a cada eleição (2015, 2019, 2023, 2027), coletado no ano eleitoral"
+juros_tesouro.csv,pre_1a/pre_2a/pre_3a,decimal,% ao ano,Tesouro Prefixado (LTN) interpolado a prazo constante; taxa de venda da manhã; NaN fora do intervalo de vencimentos
+juros_tesouro.csv,real_3a/real_5a,decimal,% ao ano,Tesouro IPCA+ (NTN-B Principal) interpolado; juro real
+juros_tesouro.csv,implicita_3a,decimal,% ao ano,Inflação implícita de 3 anos = (1+pre)/(1+real)-1
+focus.csv,base_calculo,inteiro,,Base de cálculo do BCB (conferir definição na documentação oficial). Só a base 0 existe nas 4 eleições: usar base 0 nas comparações
+controles_externos.csv,sp500/vix/brent,decimal,pontos / US$,Fechamento Yahoo; fusos e feriados diferentes da B3
+calendario_pregoes.csv,data,data,,Datas com fechamento do IBOV na B3
+calendario_eventos.csv,pregao_afetado,data,,Primeiro pregão em que a informação pôde ser negociada (divulgação após 17h ou em dia sem pregão -> pregão seguinte)
+calendario_eventos.csv,categoria,texto,,"eleicao, copom, fomc, ipca, ipca15, balanco"
+futuros_diarios.csv,ativo,texto,,"DI1F27, DI1F28, DI1F29, DI1F31, DI1F33 (DI futuro) e DOL$N (dólar futuro contínuo); desde nov/2021"
+futuros_diarios.csv,abertura/maxima/minima/fechamento,decimal,% ao ano (DI1) / R$ por US$ 1.000 (DOL),"Barra diária MT5 (último negócio, não ajuste da B3). Para DI usar variação em pontos-base, não retorno"
+futuros_diarios.csv,contratos,inteiro,nº de contratos,Volume em contratos
+futuros_diarios.csv,retorno_valido,booleano,,DOL$N: False no último pregão do mês (troca de contrato na série contínua)
